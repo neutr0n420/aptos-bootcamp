@@ -1,33 +1,33 @@
 module send_message::hello {
-    use std::string:: {utf8, String};
+    use std::string::{utf8, String};
     use std::signer;
     use aptos_framework::account;
 
-    // structs
-    struct Message has key{
-        my_msg: String
-    }
-    // functions
-    public entry fun message_fun(account:&signer, msg:String) acquires Message{
-        // taking the wallet address of the user
-        let signer_address = signer::address_of(account);
-        // checking if the `Message Struct` exists on the account address or not
-        if(!exists<Message>(signer_address)){
-            // if it dose not exit, making a instance of message struct.
-            let message = Message{
-                my_msg: msg
-            };
-            // using move_to function we are pushing the instance on chain.
-            move_to(account, message);
-        }
-        // if the `Message` sturct already exists, we will update the struct and adding the new message in the struct
+// Structs
+struct Message has key {
+    my_msg: String
+}
 
-        else{
-            // fetching the struct from chain in the mutable from, so that we can update the struct.
-            let message = borrow_global_mut<Message>(signer_address);
-            // update the message struct.
-            message.my_msg = msg;
-        }
+//functions
+public entry fun message_fun(account: &signer, msg: String) acquires Message {
+    // empty check
+    assert!(!String::is_empty(&msg), 1); // 1 is the error code
+
+    let signer_address = signer::address_of(account);
+    if(!exists<Message>(signer_address)) {
+        let message = Message {
+            my_msg: msg
+        };
+// using move_to function to push it in the chain
+        move_to(account, message)
     }
-    // tests
+
+    else {
+        // fetching the struct from chain and mutate the data
+        let message = borrow_global_mut<Message>(signer_address);
+        message.my_msg = msg;
+    }
+}
+
+// tests
 }
