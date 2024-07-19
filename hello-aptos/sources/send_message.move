@@ -30,4 +30,13 @@ module send_message::hello {
         }
     }
     // tests
+    #[test(admin = @0xabc)]
+    public entry fun test_message(admin: signer) acquires Message{
+        account::create_account_for_test(signer::address_of(&admin));
+        message_fun(&admin, utf8(b"This is the first message"));
+        message_fun(&admin, utf8(b"This is the updated message"));
+
+        let message = borrow_global<Message>(signer::address_of(&admin));
+        assert!(message.my_msg == utf8(b"This is the updated message"), 10);
+    }
 }
